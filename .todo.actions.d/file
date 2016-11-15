@@ -1,0 +1,61 @@
+#!/bin/sh
+# Author: MarkusWessjohann
+# Date: 29.10.2016
+# Desc: changes todo-file to make actions on it and moves items back to default-Todo-file
+
+function moveToTodoFile() {
+
+    # Split multiple do's, if comma separated change to whitespace separated
+    # Loop the 'do' function for each item
+    for item in ${*//,/ }; do
+        echo "item $item"
+        getTodo "$item"
+
+        # Check if this item has already been done
+        if [ "${todo:0:2}" != "t " ]; then
+            sed -i.bak $item"s|^|t |" "$TODO_FILE"
+            if [ $TODOTXT_VERBOSE -gt 0 ]; then
+                echo "TODO: $item marked as todo."
+	    fi
+        else
+            echo "TODO: $item is already marked as todo."
+        fi
+    done
+    # defragment blank lines
+    sed -i.bak -e '/./!d' "$TODO_FILE"
+    [ $TODOTXT_VERBOSE -gt 0 ] && grep "^t " "$TODO_FILE"
+    grep "^t " "$TODO_FILE" | sed "s/^t //" >> "$TODO_FILE_ORIG"
+    sed -i.bak '/^t /d' "$TODO_FILE"
+    if [ $TODOTXT_VERBOSE -gt 0 ]; then
+	echo "TODO: $TODO_FILE todos."
+    fi
+
+}
+# remove Todo subprogramm (this)
+action="$1"
+shift;
+
+TODO_FILE_ORIG="$TODO_FILE"
+TODO_CFG_TMP="$HOME/.todo.cfg.tmp"
+TODO_FILE="${TODO_DIR}/${1}-todo.txt"
+if [ ! -r "$TODO_FILE" ]
+then
+  TODO_FILE="${TODO_DIR}/${1}.txt"
+fi
+if [ ! -r "$TODO_FILE" ]
+then
+  TODO_FILE="${TODO_DIR}/${1}"
+fi
+# create tmp-config-file with other todo-file
+echo "TODO_FILE=${TODO_FILE}" > ~/.todo.cfg.tmp
+[ $TODOTXT_VERBOSE -gt 0 ] && echo "Todo File: $TODO_FILE"
+shift;
+
+if [ "x$1" = "xmv" ]
+then
+	shift;
+	moveToTodoFile "$@"
+else
+  [ $TODOTXT_VERBOSE -gt 0 ] && echo "Aufruf mit Tmp Config-File: $TODO_CFG_TMP"
+  $TODO_FULL_SH -d "$TODO_CFG_TMP" "$@"
+fi
