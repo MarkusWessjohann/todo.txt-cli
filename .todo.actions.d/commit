@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Author: MarkusWessjohann
+# Date: 01.11.2016
+Ã# Desc: commits all files in TODO_DIR with an optinal commitmessage
+
+action=$1
+shift
+args=`getopt m: "$@"`
+set -- $args
+
+mode="$1"
+if [ "x$mode" == "x-m" ]; then
+	shift;
+	commitmessage="$1"
+fi
+
+function usage {
+echo "    commit: Record all changes in Git repository located at $TODO_DIR."
+echo ""
+exit
+}
+
+[ "$action" = "usage" ] && usage
+
+$TODO_FULL_SH archive
+
+cd "$TODO_DIR"
+git diff
+if [ "x$mode" == "x-m" ]; then
+	git add -A
+	if [ "x$commitmessage" == "x" ]; then
+		git commit $mode --allow-empty-message -m ""
+	else
+		git commit -m "$commitmessage"
+
+	fi
+fi
