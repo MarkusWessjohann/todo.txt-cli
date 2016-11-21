@@ -48,7 +48,7 @@ then
 fi
 # create tmp-config-file with other todo-file
 echo "TODO_FILE=${TODO_FILE}" > ~/.todo.cfg.tmp
-[ $TODOTXT_VERBOSE -gt 0 ] && echo "Todo File: $TODO_FILE"
+[ $TODOTXT_VERBOSE -gt 0 ] && echo "new Todo File: $TODO_FILE"
 shift;
 
 if [ "x$1" = "xmv" ]
@@ -56,6 +56,6 @@ then
 	shift;
 	moveToTodoFile "$@"
 else
-  [ $TODOTXT_VERBOSE -gt 0 ] && echo "Aufruf mit Tmp Config-File: $TODO_CFG_TMP"
+  [ $TODOTXT_VERBOSE -gt 0 ] && echo "Call with tmp-config-file: $TODO_CFG_TMP"
   $TODO_FULL_SH -d "$TODO_CFG_TMP" "$@"
 fi
