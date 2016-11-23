@@ -1,0 +1,215 @@
+#!/usr/bin/perl -w
+# Author: mwessjoh
+# Date: 09.11.2016
+# Desc: Checks some rules for Todo.txt-Files
+
+use strict;
+use warnings;
+
+use Getopt::Std;
+use Text::Todo;
+
+use version; our $VERSION = qv('0.0.1');
+
+# Default config
+my $maxTodo = 20;
+my %maxPrio = ( 'A' => 3, 'B' => 9, 'C' => 27, 'D' => 0, 'E' => 0, 'F' => 0, 'G' => 0,
+  'H' => 0, 'I' => 0, 'J' => 0, 'K' => 0, 'L' => 0, 'M' => 0, 'N' => 0, 'O' => 0,
+  'P' => 0, 'Q' => 0, 'R' => 0, 'S' => 0, 'T' => 0, 'U' => 0, 'V' => 0,
+  'W' => 0, 'X' => 0, 'Y' => 0, 'Z' => 0); 
+my @Contexts = ("\@WaitFor\(.*\)", "\@nextAction", "\@Online", "\@Redmine", "\@Support", "\@Read", "\@Contact", "\@Meeting");
+
+my %opts;
+my $ResultCheckText = " ";
+my $CheckText = " ";
+my $todosh="";
+my $todoFile = " ";
+
+commandParameter();
+
+readConfigFile();
+
+my @todosArray = readTodoFile($todoFile);
+
+$ResultCheckText = checkMaxTodo(\@todosArray, $maxTodo);
+
+$CheckText = addResultText ($CheckText, $ResultCheckText);
+
+$ResultCheckText = checkMaxPrio( \%maxPrio, \@todosArray);
+
+$CheckText = addResultText ($CheckText, $ResultCheckText);
+
+$ResultCheckText = checkContext( \@Contexts, \@todosArray);
+
+$CheckText = addResultText ($CheckText, $ResultCheckText);
+
+addCheckResulttoToDo($CheckText);
+
+##############################################################
+sub addCheckResulttoToDo {
+  my ($TodoText) = @_;
+  if ($TodoText !~ /^ *$/) {
+    print "(A) >$TodoText<\n";
+    if (not $opts{t}) {
+      system($todosh,"add", "(A) $TodoText");
+    }
+  }
+}
+
+sub checkContext {
+  my $contexts = shift;
+  my $todos = shift;
+  my $sub_name = (caller(0))[3];
+  $sub_name =~ s/.*:://;
+  my $wrongTodos=0;
+  my $resultText = " ";
+  my $todoline=0;
+  my $errorlines=" ";
+
+  foreach my $todo (@{$todos}) {
+    my $contextFound=1;
+    $todoline++;
+    foreach my $context (@{$contexts}) {
+      if ($todo =~ /$context/) {
+        $contextFound=0;
+      }
+    }
+    if ($contextFound) {
+      $wrongTodos++;
+      $errorlines="$errorlines $todoline";
+    }
+  }
+  if ($wrongTodos >0) {
+    $resultText = "$sub_name: Numbers of Wrong Contexts: $wrongTodos ($errorlines )";
+  }
+
+  return $resultText;
+}
+
+sub checkMaxPrio {
+  my $maxPrioTodos = shift;
+  my $todos = shift;
+  my $resultTodoText = "";
+  my $sub_name = (caller(0))[3];
+  $sub_name =~ s/.*:://;
+  my %prioCounter = ( 'A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0, 'F' => 0,
+    'G' => 0, 'H' => 0, 'I' => 0, 'J' => 0, 'K' => 0, 'L' => 0, 'M' => 0,
+    'N' => 0, 'O' => 0, 'P' => 0, 'Q' => 0, 'R' => 0, 'S' => 0, 'T' => 0, 'U' => 0,
+    'V' => 0, 'W' => 0, 'X' => 0, 'Y' => 0, 'Z' => 0); 
+  foreach my $todo (@{$todos}) {
+    foreach my $prio (keys %{$maxPrioTodos}) {
+      if ($maxPrioTodos->{$prio}> 0 && $todo =~ /^\($prio\).*/ ) {
+        $prioCounter{$prio}++;
+      }
+    }
+  }
+  foreach my $prio (keys %prioCounter) {
+    if ( $prioCounter{$prio} > $maxPrioTodos->{$prio}) {
+      $resultTodoText = "$resultTodoText  Max $prio Prio reached (".$prioCounter{$prio}."/".$maxPrioTodos->{$prio}.")";
+    }
+  }
+  return $resultTodoText;
+
+}
+sub checkMaxTodo {
+
+  my ($todos, $max) = @_;
+  my $resultTodoText;
+  my $sub_name = (caller(0))[3];
+  $sub_name =~ s/.*:://;
+  my $todoSize = @{$todos};
+
+  if ($todoSize > $maxTodo) {
+    $resultTodoText = "$sub_name: #ToDos has reached max (".$todoSize."/".$maxTodo.")";
+  }
+  return $resultTodoText;
+}
+
+sub commandParameter {
+
+  my $action = shift @ARGV;
+  getopts( "th", \%opts );
+
+
+if ( $opts{h} || !$action ) {
+  usage( $opts{h} );
+}
+
+if (! defined $ENV{TODO_FILE})
+{
+  usage("TODO_FILE environment variable not found\n");
+}
+if (! defined $ENV{TODO_DIR})
+{
+  usage("TODO_DIR environment variable not found\n");
+}
+if (! defined $ENV{TODO_FULL_SH})
+{
+  usage("TODO_FULL_SH environment variable not found\n");
+}
+
+$todoFile = $ENV{TODO_FILE};
+$todosh= $ENV{TODO_FULL_SH};
+
+}
+
+sub addResultText {
+  my ($ResultText, $NextText) = @_;
+  if (defined $NextText) {
+    $ResultText = $ResultText." ".$NextText;
+  }
+  return $ResultText;
+}
+
+sub readTodoFile {
+  my $todoFilename = shift;
+  my @todos;
+
+  open(INF, "<", $todoFilename) or die "Unable to open $todoFilename: $?";
+
+  while (<INF>)
+  {
+    my $line = $_;
+    chomp $line;
+    next if ($line =~ /^$/);
+
+    push @todos, $line;
+  }
+
+  close INF;
+  return @todos;
+}
+
+sub readConfigFile {
+
+
+  if (! defined $ENV{TODOTXT_RULES_CFG})
+  {
+    # use default configuration
+    print "No configfile defined. Use default values\n";
+    return;
+  }
+  my $config_file = $ENV{TODOTXT_RULES_CFG};
+
+  open CONFIG, "$config_file" or die "Program stopping, couldn't open the configuration file '$config_file'.\n";
+  my $config = join "", <CONFIG>;
+  close CONFIG;
+  eval $config;
+  die "Couldn't interpret the configuration file ($config_file) that was given.\nError details follow: $@\n" if $@;
+}
+
+sub usage {
+  my ($long) = @_;
+
+  print <<'EOL';
+  Usage: rules
+EOL
+
+  if ($long) {
+    print "$long\n";
+  }
+
+  exit;
+}
+
+
