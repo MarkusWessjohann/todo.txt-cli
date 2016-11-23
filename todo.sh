@@ -900,6 +900,9 @@ _format()
                 clr = ""
                 if (match($0, /^[0-9]+ x /)) {
                     clr = highlight("COLOR_DONE")
+                } else if (match($0, /^[0-9]+ ###/)) {
+                    clr = highlight("COLOR_MESSAGE")
+                    clr = (clr ? clr : highlight("DEFAULT"))
                 } else if (match($0, /^[0-9]+ \([A-Z]\) /)) {
                     clr = highlight("PRI_" substr($0, RSTART + RLENGTH - 3, 1))
                     clr = (clr ? clr : highlight("PRI_X"))
@@ -1185,13 +1188,13 @@ case $action in
         # Don't use PAGER here; we don't expect much usage output from one / few actions.
         actionUsage "$@"
     else
-        if [ -t 1 ] ; then # STDOUT is a TTY
-            if which "${PAGER:-less}" >/dev/null 2>&1; then
-                # we have a working PAGER (or less as a default)
-                help | "${PAGER:-less}" && exit 0
-            fi
+    if [ -t 1 ] ; then # STDOUT is a TTY
+        if which "${PAGER:-less}" >/dev/null 2>&1; then
+            # we have a working PAGER (or less as a default)
+            help | "${PAGER:-less}" && exit 0
         fi
-        help # just in case something failed above, we go ahead and just spew to STDOUT
+    fi
+    help # just in case something failed above, we go ahead and just spew to STDOUT
     fi
     ;;
 
