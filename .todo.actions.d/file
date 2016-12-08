@@ -33,6 +33,16 @@ function moveToTodoFile() {
 }
 # remove Todo subprogramm (this)
 action="$1"
+if [ $action = usage ]; then
+	cat <<EOF
+    $USAGE
+    file todo-file [mv #ITEM, #ITEM] [all Todo.sh and Addon actions]
+    changes to default-Todo-File to the new one, to do action on it.
+    mv #ITEMs to default-Todo-File 
+EOF
+   exit
+fi
+
 shift;
 
 TODO_FILE_ORIG="$TODO_FILE"

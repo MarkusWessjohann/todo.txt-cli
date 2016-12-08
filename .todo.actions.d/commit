@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Author: MarkusWessjohann
 # Date: 01.11.2016
-Ã# Desc: commits all files in TODO_DIR with an optinal commitmessage
+# Desc: commits all files in TODO_DIR with an optinal commitmessage
 
 action=$1
 shift

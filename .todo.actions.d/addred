@@ -1,10 +1,34 @@
-#!/bin/bash
-# Author: MarkusWessjohann
-# Date: 15.11.2016
-# Desc: Alias for addredmine.
-#       Based on script e
+#!/bin/sh
+# Author: mwessjoh
+# Date: 02.11.2016
+# Desc: Erstellt aus einer Redmine-Ticket-ID ein TODO-Eintrag
 
-[ "$1" = "usage" ] && exit 0
+USAGE="addred Ticket-ID"
+
+if [ $1 = usage ]; then
+	cat <<EOF
+    $USAGE
+      Add Redmine-Ticket as task.
+
+EOF
+exit
+fi
+
+[ $# -lt 1 ] && die "usage: $TODO_SH $USAGE"
 shift
+ID=$1
 
-"$TODO_SH" addredmine "$@"
+redticketdata=`cat $TODO_DIR/Redmine/alle-Tickets.csv | grep "^${ID};" `
+thema=`echo "$redticketdata" | cut -f2 -d";"` 
+projekt=`echo "$redticketdata" | cut -f3 -d";" | tr " " "_"` 
+status=`echo "$redticketdata" | cut -f5 -d";"` 
+zugewiesen=`echo "$redticketdata" | cut -f6 -d";"` 
+prio="(A)"
+
+todo="$prio #$ID - $thema +$projekt @Redmine"
+$TODO_FULL_SH add "$todo"
+
+
+
+
+
