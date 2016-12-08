@@ -49,7 +49,7 @@ addCheckResulttoToDo($CheckText);
 sub addCheckResulttoToDo {
   my ($TodoText) = @_;
   if ($TodoText !~ /^ *$/) {
-    print "(A) >$TodoText<\n";
+    print "Add: (A) >$TodoText<\n";
     if (not $opts{t}) {
       system($todosh,"add", "(A) $TodoText");
     }
@@ -172,6 +172,7 @@ sub readTodoFile {
     my $line = $_;
     chomp $line;
     next if ($line =~ /^$/);
+    next if ($line =~ /^#$/);
 
     push @todos, $line;
   }
