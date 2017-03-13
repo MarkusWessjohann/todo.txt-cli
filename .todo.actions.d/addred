@@ -1,0 +1,10 @@
+#!/bin/bash
+# Author: MarkusWessjohann
+# Date: 15.11.2016
+# Desc: Alias for addredmine.
+#       Based on script e
+
+[ "$1" = "usage" ] && exit 0
+shift
+
+"$TODO_SH" addredmine "$@"

@@ -1,14 +1,14 @@
 #!/bin/sh
-# Author: mwessjoh
+# Author: MarkusWessjohann
 # Date: 02.11.2016
-# Desc: Erstellt aus einer Redmine-Ticket-ID ein TODO-Eintrag
+# Desc: creates a task from a redmine-Ticket-File
 
-USAGE="addred Ticket-ID"
+USAGE="addred issue-ID"
 
 if [ $1 = usage ]; then
 	cat <<EOF
     $USAGE
-      Add Redmine-Ticket as task.
+      Add Redmine-issue as task.
 
 EOF
 exit
@@ -18,13 +18,38 @@ fi
 shift
 ID=$1
 
-redticketdata=`cat $TODO_DIR/Redmine/alle-Tickets.csv | grep "^${ID};" `
-thema=`echo "$redticketdata" | cut -f2 -d";"` 
-projekt=`echo "$redticketdata" | cut -f3 -d";" | tr " " "_"` 
-status=`echo "$redticketdata" | cut -f5 -d";"` 
-zugewiesen=`echo "$redticketdata" | cut -f6 -d";"` 
+user_pass=`cmd /C "gpg2.exe -d c:\\cygwin64\\home\\mwessjoh\\.redmine.conf.gpg" | \
+  grep -v "Codepage" | \
+  tr -d "$ ;"`
+user=` echo "$user_pass" | \
+  grep user | \
+  cut -f2 -d"=" | \
+  tr -d '"'`
+password=` echo "$user_pass" | \
+  grep pass | \
+  cut -f2 -d"=" | \
+  tr -d '"'`
+
+curl  -H "Content-Type: application/xml" -u "$user:$password" -X GET "http://redmine.ao-intranet/issues/${ID}.xml" > /tmp/$ID.xml
+
+#redticketdata=`cat $TODO_DIR/Redmine/alle-Tickets.csv | grep "^${ID};" `
+thema=`xmllint.exe --xpath "string(//subject)" /tmp/$ID.xml`
+projekt=`xmllint.exe --xpath "string(//project/@name)" /tmp/$ID.xml | tr " " "_"`
+status=`xmllint.exe --xpath "string(//status/@name)" /tmp/$ID.xml`
+zugewiesen=`xmllint.exe --xpath "string(//assigned_tp/@name)" /tmp/$ID.xml`
 prio="(A)"
 
+if [ "x$thema" == "x" ]
+then
+  echo "Redmine-issue not found: ${ID}";
+  exit 1
+fi
+$TODO_FULL_SH list | grep "#$ID" 2>&1 >/dev/null
+if [ "$?" -eq 0 ]
+then
+  echo "Redmine-issue already as Task (#$ID"
+  exit 1
+fi
 todo="$prio #$ID - $thema +$projekt @Redmine"
 $TODO_FULL_SH add "$todo"
 

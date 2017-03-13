@@ -1,0 +1,36 @@
+#!/bin/sh
+# Author: Markus Wessjohann
+# Date: 17.01.2017
+# Desc: Uses the redmine-issue-id to do the action
+
+usage() {
+  echo "red #issue <todo.sh-aktion> [action Paramter ...]"
+  exit 1
+  }
+
+shift
+issue=`echo "#$1" | sed "s/##/#/"`
+if [ "$issue" == "#" ]
+then
+  echo "Issue not set"
+  exit 1
+fi
+shift
+todo_id=`$TODO_FULL_SH -p list | grep " $issue " | sed "s/\([0-9]*\) .*/\1/"`
+if [ -z "$todo_id" ]
+then
+  echo "Couldn't examine todo-Id from $issue"
+  exit 1
+fi
+
+#echo "Issue $issue has todo-id $todo_id"
+if [ "$#" -eq 0 ]
+then
+    echo "$todo_id"
+    exit 0
+fi
+args=` echo "$@" | sed "s/ID/$todo_id/"`
+
+$TODO_FULL_SH $args 
+
+

@@ -1123,6 +1123,7 @@ case $action in
             echo "$item $newtodo"
         fi
     fi
+    $TODO_FULL_SH list
     ;;
 
 "depri" | "dp" )
@@ -1180,6 +1181,8 @@ case $action in
         # action.
         "$TODO_FULL_SH" archive
     fi
+    "$TODO_FULL_SH" list
+    
     ;;
 
 "help" )

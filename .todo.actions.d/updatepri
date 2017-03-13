@@ -1,0 +1,173 @@
+#!/usr/bin/perl -w
+# Author: MarkusWessjohann
+# Date: 09.12.2016
+# Desc: Checks some rules for Todo.txt-Files
+
+use strict;
+use warnings;
+
+use Getopt::Std;
+use Text::Todo;
+use File::Find;
+use Date::Format;
+use Date::Calc qw(Delta_Days);
+
+use version; our $VERSION = qv('0.0.1');
+
+my %opts;
+my ($checkyear, $checkmonth, $checkday);
+my $full;
+my $verbose=0;
+my $todosh;
+my $todoFile;
+my $todoDir;
+my @todoFiles;
+my @todosArray;
+
+commandParameter();
+
+@todosArray = readTodoFile($todoFile);
+updatePrio(\@todosArray);
+
+readNextTodoFiles($todoDir);
+updateNextTodofiles(\@todoFiles);
+
+##############################################################
+sub updateNextTodofiles {
+  my $todofiles = shift;
+  my $todofile;
+  my $checkdate = "$checkyear$checkmonth";
+  my $filedate;
+  foreach $todofile (@{$todofiles}) {
+    print "Scan File $todofile\n";
+  }
+}
+
+sub readNextTodoFiles {
+  my $tododir = shift;
+  print find(\&wanted, "$tododir");
+}
+
+sub wanted {
+  return unless -f $_;
+  return unless ($_ =~ /.*-todo\.txt$/);
+  print "Add Todo-File: $_\n" if ($verbose);
+  push(@todoFiles,$File::Find::name);
+}
+
+sub updatePrio {
+  my $todos = shift;
+  my $todo;
+  my ($year, $month, $day);
+  my $deltadays;
+  my $todoItem=0;
+
+  foreach $todo (@{$todos}) {
+    $todoItem++;
+    next if ($todo =~ /^#/); # Skip Commentlines 
+    if ($todo =~ / ([12][0129][0-9][0-9])-([0-9]{2})-([0-9]{2}) /) {
+      $year=$1;
+      $month=$2;
+      $day=$3;
+      $deltadays=Delta_Days($checkyear, $checkmonth, $checkday,$year, $month, $day);
+      if ($deltadays<0) {
+        print "Days: $deltadays new Prio: A\n" if ($verbose);
+        system($todosh,"pri", "$todoItem","A");
+      }
+      elsif ($deltadays<1) {
+        print "Days: $deltadays new Prio: B\n" if ($verbose);
+        system($todosh,"pri", "$todoItem","B");
+      }
+      elsif ($deltadays<=7) {
+        print "Days: $deltadays new Prio: C\n" if ($verbose);
+        system($todosh,"pri", "$todoItem","C");
+      }
+    }
+  }
+}
+
+sub commandParameter {
+
+  my $action = shift @ARGV;
+  my $date;
+  getopts( "fd:h", \%opts );
+
+  if ( $opts{h} || !$action ) {
+    usage( $opts{h} );
+  }
+  if ( $opts{f} ) {
+    $full=1;
+  }
+
+  if ( $opts{d} ) {
+    $date=$opts{d}; 
+    usage("Wrong Date-Format") if ($date !~ /[12][0129][0-9][0-9]-[0-9]{2}-[0-9]{2}/);
+  }
+
+  if (! defined $ENV{TODO_FILE})
+  {
+    usage("TODO_FILE environment variable not found\n");
+  }
+  if (! defined $ENV{TODO_DIR})
+  {
+    usage("TODO_DIR environment variable not found\n");
+  }
+  if (! defined $ENV{TODO_FULL_SH})
+  {
+    usage("TODO_FULL_SH environment variable not found\n");
+  }
+  if (defined $ENV{TODOTXT_VERBOSE})
+  {
+    if ($ENV{TODOTXT_VERBOSE}>0) {
+      $verbose=1;
+    }
+  }
+
+  if (!$date) {
+    $date=time2str("%Y-%m-%d", time);
+  }
+
+  $todoFile = $ENV{TODO_FILE};
+  $todosh= $ENV{TODO_FULL_SH};
+  $todoDir = $ENV{TODO_DIR};
+  ($checkyear, $checkmonth, $checkday) = split /-/, $date;
+  print "Checkdate: $checkyear-$checkmonth-$checkday\n" if ($verbose);
+}
+
+sub readTodoFile {
+  my $todoFilename = shift;
+  my @todos;
+
+  open(INF, "<", $todoFilename) or die "Unable to open $todoFilename: $?";
+
+  while (<INF>)
+  {
+    my $line = $_;
+    chomp $line;
+    next if ($line =~ /^$/);
+
+    push @todos, $line;
+  }
+
+  close INF;
+  return @todos;
+}
+
+sub usage {
+  my ($long) = @_;
+
+  print <<'EOL';
+  Usage: updatepri -d Date -f -h
+    -f - Full scan 
+    -h - Help
+    -d Date - use Date then current Date. Date Format: YYYY-MM-DD
+EOL
+
+  if ($long) {
+    print "$long\n";
+  }
+
+  exit;
+}
+
+1;

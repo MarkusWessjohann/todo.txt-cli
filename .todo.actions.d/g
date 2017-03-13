@@ -1,0 +1,9 @@
+#!/bin/sh
+# Author: MarkusWessjohann
+# Date: 27.02.2017
+# Desc: grep on Todo-List
+
+[ "$1" = "usage" ] && exit 0
+shift
+
+"$TODO_SH" list | grep "$@"

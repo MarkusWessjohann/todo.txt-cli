@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# Author: mwessjoh
+# Author: MarkusWessjohann
 # Date: 09.11.2016
 # Desc: Checks some rules for Todo.txt-Files
 
@@ -67,6 +67,7 @@ sub checkContext {
   my $errorlines=" ";
 
   foreach my $todo (@{$todos}) {
+    next if ($todo =~ /^#$/);
     my $contextFound=1;
     $todoline++;
     foreach my $context (@{$contexts}) {
@@ -97,6 +98,7 @@ sub checkMaxPrio {
     'N' => 0, 'O' => 0, 'P' => 0, 'Q' => 0, 'R' => 0, 'S' => 0, 'T' => 0, 'U' => 0,
     'V' => 0, 'W' => 0, 'X' => 0, 'Y' => 0, 'Z' => 0); 
   foreach my $todo (@{$todos}) {
+    next if ($todo =~ /^#$/);
     foreach my $prio (keys %{$maxPrioTodos}) {
       if ($maxPrioTodos->{$prio}> 0 && $todo =~ /^\($prio\).*/ ) {
         $prioCounter{$prio}++;
@@ -172,7 +174,6 @@ sub readTodoFile {
     my $line = $_;
     chomp $line;
     next if ($line =~ /^$/);
-    next if ($line =~ /^#$/);
 
     push @todos, $line;
   }
