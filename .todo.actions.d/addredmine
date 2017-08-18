@@ -7,8 +7,7 @@ USAGE="addred issue-ID"
 
 if [ $1 = usage ]; then
 	cat <<EOF
-    $USAGE
-      Add Redmine-issue as task.
+    $USAGE  - Add Redmine-issue as task.
 
 EOF
 exit
@@ -17,8 +16,10 @@ fi
 [ $# -lt 1 ] && die "usage: $TODO_SH $USAGE"
 shift
 ID=$1
+[ "$ID" -eq "$ID" ] 2>/dev/null || die "usage: $TODO_SH $USAGE"
 
-user_pass=`cmd /C "gpg2.exe -d c:\\cygwin64\\home\\mwessjoh\\.redmine.conf.gpg" | \
+cd $HOME
+user_pass=`"/cygdrive/c/Program Files (x86)/GnuPG/bin/gpg.exe" -d .redmine.conf.gpg | \
   grep -v "Codepage" | \
   tr -d "$ ;"`
 user=` echo "$user_pass" | \
@@ -29,6 +30,12 @@ password=` echo "$user_pass" | \
   grep pass | \
   cut -f2 -d"=" | \
   tr -d '"'`
+
+if [ -z "$user_pass" ]
+then
+	echo "Couldn't decrypt File"
+	exit 1
+fi
 
 curl  -H "Content-Type: application/xml" -u "$user:$password" -X GET "http://redmine.ao-intranet/issues/${ID}.xml" > /tmp/$ID.xml
 

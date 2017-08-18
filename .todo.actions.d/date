@@ -23,28 +23,29 @@ function usage {
 }
 
 function list {
-	$TODO_FULL_SH -x list | grep "$pattern"
+	$TODO_FULL_SH -x list | grep "$pattern "
 }
 
 function add {
 	item=$1
 	threshold=$2
 
-	flag=`sed -e "$item!d" "$TODO_FILE" | grep "$pattern"`
-
-	if [ -z "$flag" ]; then
-		$TODO_FULL_SH prepend $item `date -d "$threshold" +%F`
-	else
-		replace $item "$threshold"
-	fi
+	oldtask=`sed -e "$item!d" \
+      -e "s/^[0-9]* //" \
+			-e "s/^([A-Z])* //" \
+			-e "s/^$pattern //" \
+			"$TODO_FILE"` # remove item number, priority and threshold
+	newtask=`date -d "$threshold" +%F`" $oldtask"
+	$TODO_FULL_SH replace $item "$newtask"
+	$TODO_FULL_SH pri $item D
 }
 
 function remove {
 	item=$1
 	task=`sed -e "$item!d" \
-                        -e "s/^[0-9]* //" \
+      -e "s/^[0-9]* //" \
 			-e "s/^([A-Z])* //" \
-			-e "s/^$pattern//" \
+			-e "s/^$pattern //" \
 			"$TODO_FILE"` # remove item number, priority and threshold
 	$TODO_FULL_SH replace $item "$task" # NB: retains priority
 }

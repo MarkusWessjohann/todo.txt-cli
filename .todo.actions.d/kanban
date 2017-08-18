@@ -1,0 +1,203 @@
+#!/usr/bin/perl -w
+# Author: MarkusWessjohann
+# Date: 09.12.2016
+# Desc: Checks some rules for Todo.txt-Files
+
+use strict;
+use warnings;
+
+use Getopt::Std;
+use File::Find;
+use Perl6::Form;
+use POSIX qw(strftime);
+use Term::Size::Any qw( chars );
+
+use version; our $VERSION = qv('0.0.1');
+
+my %opts;
+my $full;
+my $verbose=0;
+my $todoDoneFile;
+my $todoFile;
+my $todoDir;
+my @todoFiles;
+my @todosArray;
+my @doneArray;
+my $cols;
+my $rows;
+
+commandParameter();
+
+@todosArray = readTodoFile($todoFile);
+@doneArray = readTodoFile($todoDoneFile);
+
+showKanban(\@todosArray, \@doneArray);
+
+##############################################################
+
+
+sub showKanban {
+  my $todos = shift;
+  my $dones = shift;
+  my $todo;
+  my @backlogRow =();
+  my @todayRow =();
+  my @todoRow =();
+  my @doneRow =();
+  my @commant =();
+  my $todoId=0;
+  my $today = strftime "%Y-%m-%d", localtime;
+
+  foreach $todo (@{$todos}) {
+    $todoId++;
+    if ($todo =~ /^#/) 
+    {
+      push @commant, "$todoId $todo";
+    } elsif ($todo =~ s/^\(A\) //)
+    {
+      $todo =~ s/^[0-9]{4}-[0-9]{2}-[0-9]{2} //;
+      $todo =~ s/^ *//;
+      push @todoRow, "$todoId $todo";
+    } elsif ($todo =~ s/^\(B\)//)
+    {
+      $todo =~ s/^[0-9]{4}-[0-9]{2}-[0-9]{2} //;
+      $todo =~ s/^ *//;
+      push @todayRow, "$todoId $todo";
+    } else 
+    {
+      $todo =~ s/^\(.\) //;
+      $todo =~ s/^[0-9]{4}-[0-9]{2}-[0-9]{2} //;
+      $todo =~ s/^ *//;
+      push @backlogRow, "$todoId $todo";
+    }
+  }
+  foreach $todo (@{$dones}) {
+    next if ($todo =~ /^#/); # Skip Commentlines 
+    if ($todo =~ s/^x $today//) {
+      $todo =~ s/^[0-9]{4}-[0-9]{2}-[0-9]{2} //;
+      $todo =~ s/http:\/\/.*/<link>/;
+      $todo =~ s/^ *//;
+      push @doneRow, "x $todo";
+    }
+  }
+
+  printKanban(\@backlogRow, \@todayRow, \@todoRow, \@doneRow, \@commant);
+}
+
+sub printKanban {
+  my $backlogs = shift;
+  my $nexts = shift;
+  my $todos = shift;
+  my $dones = shift;
+  my $comments = shift;
+  my $kanbanBoard ="";
+  my $commentsHeader ="";
+
+
+  if ($cols >= 170) {
+    if (scalar @{ $comments } > 0) {
+      $commentsHeader = form { layout=>"tabular"},
+      '+-------------------------------------+------------------------------------+----------------------------------------------------+-----------------------------------+',
+      '| {>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<} |',
+      $comments,
+      '|                                                                                                                                                                   |';
+    }
+
+    $kanbanBoard = form { layout=>"tabular"},
+    '+-------------------------------------+------------------------------------+----------------------------------------------------+-----------------------------------+',
+    '|           Backlog                   |             Today                  |                      ToDo                          |                  Done              |',
+    '+-------------------------------------+------------------------------------+----------------------------------------------------+-----------------------------------+',
+    '| {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[} | {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[} | {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[} | {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[}  |',
+    $backlogs, $nexts, $todos, $dones,
+    '|                                     |                                    |                                                    |                                    |',
+    '+-------------------------------------+------------------------------------+----------------------------------------------------+-----------------------------------+';
+  } else {
+    if (scalar @{ $comments } > 0) {
+      $commentsHeader = form
+      '+---------------------+-------------------+----------------------------------+-------------------+',
+      '| >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<|',    
+      '+---------------------+-------------------+----------------------------------+-------------------+',
+      $comments;
+
+    }
+    $kanbanBoard = form { layout=>"tabular"},
+    '+---------------------+-------------------+----------------------------------+-------------------+',
+    '|      Backlog        |        Today      |            ToDo                  |     Done          |',
+    '+---------------------+-------------------+----------------------------------+-------------------+',
+    '| {[[[[[[[[[[[[[[[[[} | {[[[[[[[[[[[[[[[} | {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[} | {[[[[[[[[[[[[[[}  |',
+    $backlogs, $nexts, $todos, $dones,
+    '|                     |                   |                                  |                   |',
+    '+---------------------+-------------------+----------------------------------+-------------------+';
+  }
+  print $commentsHeader, $kanbanBoard;
+
+}
+sub commandParameter {
+
+  my $action = shift @ARGV;
+  getopts( "h", \%opts );
+
+if ( $opts{h} || !$action ) {
+  usage( $opts{h} );
+}
+
+if (! defined $ENV{TODO_FILE})
+{
+  usage("TODO_FILE environment variable not found\n");
+}
+if (! defined $ENV{DONE_FILE})
+{
+  usage("DONE_FILE environment variable not found\n");
+}
+if (! defined $ENV{TODO_DIR})
+{
+  usage("TODO_DIR environment variable not found\n");
+}
+if (defined $ENV{TODOTXT_VERBOSE})
+{
+  if ($ENV{TODOTXT_VERBOSE}>0) {
+    $verbose=1;
+  }
+}
+
+$todoFile = $ENV{TODO_FILE};
+$todoDir = $ENV{TODO_DIR};
+$todoDoneFile = $ENV{DONE_FILE};
+($cols, $rows) = chars();
+}
+
+sub readTodoFile {
+  my $todoFilename = shift;
+  my @todos;
+
+  open(INF, "<", $todoFilename) or die "Unable to open $todoFilename: $?";
+
+  while (<INF>)
+  {
+    my $line = $_;
+    chomp $line;
+    next if ($line =~ /^$/);
+
+    push @todos, $line;
+  }
+
+  close INF;
+  return @todos;
+}
+
+sub usage {
+  my ($long) = @_;
+
+  print <<'EOL';
+  Usage: kanban -h
+    -h - Help
+EOL
+
+  if ($long) {
+    print "$long\n";
+  }
+
+  exit;
+}
+
+1;

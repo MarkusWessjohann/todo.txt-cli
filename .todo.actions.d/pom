@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ "x$1" == "xstart" ]
+then
+ /cygdrive/c/Program\ Files\ \(x86\)/SnapTimer/SnapTimer.exe 25 &
+fi
+./pom_orig "$@"
