@@ -1,0 +1,131 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+-mode	Makefile	/^	install --mode=644 todo_completion \/etc\/bash_completion.d\/todo$/;"	m
+DISTFILES	Makefile	/^DISTFILES := todo.cfg todo_completion$/;"	m
+DISTNAME	Makefile	/^DISTNAME=todo.txt_cli-$(VERSION)$/;"	m
+INSTALL_DIR	Makefile	/^INSTALL_DIR=\/usr\/local\/bin$/;"	m
+TESTS	Makefile	/^TESTS = $(wildcard tests\/t[0-9][0-9][0-9][0-9]-*.sh)$/;"	m
+Usage	.todo.actions.d/kanban	/^  Usage: kanban -h$/;"	l
+Usage	.todo.actions.d/rules	/^  Usage: rules$/;"	l
+Usage	.todo.actions.d/updatepri	/^  Usage: updatepri -d Date -f -h$/;"	l
+_addto	todo.sh	/^_addto() {$/;"	f
+_format	todo.sh	/^_format()$/;"	f
+_list	todo.sh	/^_list() {$/;"	f
+_todo2	tests/t6080-completion-path.sh	/^_todo2()$/;"	f
+_todo2	tests/t6090-completion-aliases.sh	/^_todo2()$/;"	f
+_todo2path	tests/t6080-completion-path.sh	/^_todo2path()$/;"	f
+actionUsage	todo.sh	/^actionUsage()$/;"	f
+actionsHelp	todo.sh	/^actionsHelp()$/;"	f
+add	.todo.actions.d/date	/^function add {$/;"	f
+addCheckResulttoToDo	.todo.actions.d/rules	/^sub addCheckResulttoToDo {$/;"	s
+addResultText	.todo.actions.d/rules	/^sub addResultText {$/;"	s
+addonHelp	todo.sh	/^addonHelp()$/;"	f
+backtick_check	tests/t0100-code-nobacktick.sh	/^backtick_check()$/;"	f
+checkContext	.todo.actions.d/rules	/^sub checkContext {$/;"	s
+checkMaxPrio	.todo.actions.d/rules	/^sub checkMaxPrio {$/;"	s
+checkMaxTodo	.todo.actions.d/rules	/^sub checkMaxTodo {$/;"	s
+cleaninput	todo.sh	/^cleaninput()$/;"	f
+commandParameter	.todo.actions.d/kanban	/^sub commandParameter {$/;"	s
+commandParameter	.todo.actions.d/rules	/^sub commandParameter {$/;"	s
+commandParameter	.todo.actions.d/updatepri	/^sub commandParameter {$/;"	s
+die	tests/test-lib.sh	/^die () {$/;"	f
+die	todo.sh	/^die()$/;"	f
+dieWithHelp	todo.sh	/^dieWithHelp()$/;"	f
+error	.todo.actions.d/mit	/^error() {$/;"	f
+error	tests/test-lib.sh	/^error () {$/;"	f
+filtercommand	todo.sh	/^filtercommand()$/;"	f
+getMITS	.todo.actions.d/mit	/^getMITS() {$/;"	f
+getNewtodo	todo.sh	/^getNewtodo()$/;"	f
+getPadding	todo.sh	/^getPadding()$/;"	f
+getPrefix	todo.sh	/^getPrefix()$/;"	f
+getTodo	todo.sh	/^getTodo()$/;"	f
+get_color	tests/aggregate-results.sh	/^get_color()$/;"	f
+help	todo.sh	/^help()$/;"	f
+highlight	todo.sh	/^            function highlight(colorVar,      color) {$/;"	f
+increase_pomos	.todo.actions.d/pom_orig	/^def increase_pomos todos, index$/;"	f
+list	.todo.actions.d/date	/^function list {$/;"	f
+listAvailableTodos	.todo.actions.d/revive	/^function listAvailableTodos {$/;"	f
+listWordsWithSigil	todo.sh	/^listWordsWithSigil()$/;"	f
+logger	.todo.actions.d/pom_orig	/^def logger$/;"	f
+makeCustomActions	tests/t6050-completion-addons.sh	/^makeCustomActions()$/;"	f
+makeDATE	.todo.actions.d/mit	/^makeDATE() {$/;"	f
+makeDOW	.todo.actions.d/mit	/^makeDOW() {$/;"	f
+make_action	tests/actions-test-lib.sh	/^make_action()$/;"	f
+make_action_in_folder	tests/actions-test-lib.sh	/^make_action_in_folder()$/;"	f
+make_schedule	.todo.actions.d/ice_recur	/^def make_schedule( rulestr )$/;"	f
+moveMIT	.todo.actions.d/mit	/^moveMIT() {$/;"	f
+moveToTodoFile	.todo.actions.d/file	/^function moveToTodoFile() {$/;"	f
+parseDAY	.todo.actions.d/mit	/^parseDAY() {$/;"	f
+plan_task	.todo.actions.d/pom_orig	/^def plan_task todos, index, planned$/;"	f
+printKanban	.todo.actions.d/kanban	/^sub printKanban {$/;"	s
+puts_and_exit	.todo.actions.d/pom_orig	/^def puts_and_exit string$/;"	f
+readConfigFile	.todo.actions.d/rules	/^sub readConfigFile {$/;"	s
+readNextTodoFiles	.todo.actions.d/updatepri	/^sub readNextTodoFiles {$/;"	s
+readTodoFile	.todo.actions.d/kanban	/^sub readTodoFile {$/;"	s
+readTodoFile	.todo.actions.d/rules	/^sub readTodoFile {$/;"	s
+readTodoFile	.todo.actions.d/updatepri	/^sub readTodoFile {$/;"	s
+read_todos	.todo.actions.d/pom_orig	/^def read_todos$/;"	f
+remove	.todo.actions.d/date	/^function remove {$/;"	f
+removeCustomActions	tests/t6050-completion-addons.sh	/^removeCustomActions()$/;"	f
+removeMIT	.todo.actions.d/mit	/^removeMIT() {$/;"	f
+replace	.todo.actions.d/date	/^function replace {$/;"	f
+replaceOrPrepend	todo.sh	/^replaceOrPrepend()$/;"	f
+reviveTodo	.todo.actions.d/revive	/^function reviveTodo {$/;"	f
+say	tests/test-lib.sh	/^say () {$/;"	f
+say_color	tests/aggregate-results.sh	/^	say_color () {$/;"	f
+say_color	tests/aggregate-results.sh	/^	say_color() {$/;"	f
+say_color	tests/test-lib.sh	/^	say_color () {$/;"	f
+say_color	tests/test-lib.sh	/^	say_color() {$/;"	f
+shellquote	todo.sh	/^shellquote()$/;"	f
+shorthelp	todo.sh	/^shorthelp()$/;"	f
+showKanban	.todo.actions.d/kanban	/^sub showKanban {$/;"	s
+tapprint	.todo.actions.d/ice_recur	/^def tapprint( bool, text )$/;"	f
+test_cmp	tests/test-lib.sh	/^test_cmp() {$/;"	f
+test_debug	tests/test-lib.sh	/^test_debug () {$/;"	f
+test_done	tests/test-lib.sh	/^test_done () {$/;"	f
+test_expect_code	tests/test-lib.sh	/^test_expect_code () {$/;"	f
+test_expect_code_and_output	tests/test-lib.sh	/^test_expect_code_and_output () {$/;"	f
+test_expect_failure	tests/test-lib.sh	/^test_expect_failure () {$/;"	f
+test_expect_output	tests/test-lib.sh	/^test_expect_output () {$/;"	f
+test_expect_success	tests/test-lib.sh	/^test_expect_success () {$/;"	f
+test_external	tests/test-lib.sh	/^test_external () {$/;"	f
+test_external_without_stderr	tests/test-lib.sh	/^test_external_without_stderr () {$/;"	f
+test_failure_	tests/test-lib.sh	/^test_failure_ () {$/;"	f
+test_init_todo	tests/test-lib.sh	/^test_init_todo () {$/;"	f
+test_known_broken_failure_	tests/test-lib.sh	/^test_known_broken_failure_ () {$/;"	f
+test_known_broken_ok_	tests/test-lib.sh	/^test_known_broken_ok_ () {$/;"	f
+test_must_fail	tests/test-lib.sh	/^test_must_fail () {$/;"	f
+test_ok_	tests/test-lib.sh	/^test_ok_ () {$/;"	f
+test_run_	tests/test-lib.sh	/^test_run_ () {$/;"	f
+test_set_editor	tests/test-lib.sh	/^test_set_editor () {$/;"	f
+test_shell	tests/test-lib.sh	/^test_shell () {$/;"	f
+test_skip	tests/test-lib.sh	/^test_skip () {$/;"	f
+test_tick	tests/test-lib.sh	/^test_tick () {$/;"	f
+test_todo_completion	tests/test-lib.sh	/^test_todo_completion () {$/;"	f
+test_todo_custom_completion	tests/test-lib.sh	/^test_todo_custom_completion () {$/;"	f
+test_todo_session	tests/test-lib.sh	/^test_todo_session () {$/;"	f
+todo1	tests/t6090-completion-aliases.sh	/^todo1()$/;"	f
+todo2	tests/t6090-completion-aliases.sh	/^todo2()$/;"	f
+updateNextTodofiles	.todo.actions.d/updatepri	/^sub updateNextTodofiles {$/;"	s
+updatePrio	.todo.actions.d/updatepri	/^sub updatePrio {$/;"	s
+usage	.todo.actions.d/commit	/^function usage {$/;"	f
+usage	.todo.actions.d/date	/^function usage {$/;"	f
+usage	.todo.actions.d/kanban	/^sub usage {$/;"	s
+usage	.todo.actions.d/mit	/^usage() {$/;"	f
+usage	.todo.actions.d/nav	/^function usage(){$/;"	f
+usage	.todo.actions.d/navred	/^function usage(){$/;"	f
+usage	.todo.actions.d/navredmine	/^function usage(){$/;"	f
+usage	.todo.actions.d/pom_orig	/^def usage$/;"	f
+usage	.todo.actions.d/red	/^usage() {$/;"	f
+usage	.todo.actions.d/repeat	/^function usage {$/;"	f
+usage	.todo.actions.d/revive	/^function usage {$/;"	f
+usage	.todo.actions.d/rules	/^sub usage {$/;"	s
+usage	.todo.actions.d/updatepri	/^sub usage {$/;"	s
+usage	todo.sh	/^usage()$/;"	f
+version	.todo.actions.d/mit	/^version() {$/;"	f
+version	todo.sh	/^version() {$/;"	f
+wanted	.todo.actions.d/updatepri	/^sub wanted {$/;"	s
