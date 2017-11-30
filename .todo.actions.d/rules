@@ -17,7 +17,7 @@ my %maxPrio = ( 'A' => 3, 'B' => 9, 'C' => 27, 'D' => 0, 'E' => 0, 'F' => 0, 'G'
   'H' => 0, 'I' => 0, 'J' => 0, 'K' => 0, 'L' => 0, 'M' => 0, 'N' => 0, 'O' => 0,
   'P' => 0, 'Q' => 0, 'R' => 0, 'S' => 0, 'T' => 0, 'U' => 0, 'V' => 0,
   'W' => 0, 'X' => 0, 'Y' => 0, 'Z' => 0); 
-my @Contexts = ("\@WaitFor\(.*\)", "\@nextAction", "\@Online", "\@Redmine", "\@Support", "\@Read", "\@Contact", "\@Meeting");
+my @Contexts = ("\@WaitFor\(.*\)", "\@next", "\@Online", "\@Redmine", "\@Support", "\@Read", "\@Contact", "\@Meeting");
 
 my %opts;
 my $ResultCheckText = " ";
@@ -49,6 +49,7 @@ addCheckResulttoToDo($CheckText);
 sub addCheckResulttoToDo {
   my ($TodoText) = @_;
   if ($TodoText !~ /^ *$/) {
+    $TodoText = "rules: ". $TodoText . " +Privat \@next";
     print "Add: (A) >$TodoText<\n";
     if (not $opts{t}) {
       system($todosh,"add", "(A) $TodoText");

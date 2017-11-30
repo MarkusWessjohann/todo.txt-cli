@@ -58,25 +58,27 @@ sub showKanban {
       $todo =~ s/^[0-9]{4}-[0-9]{2}-[0-9]{2} //;
       $todo =~ s/^ *//;
       push @todoRow, "$todoId $todo";
-    } elsif ($todo =~ s/^\(B\)//)
+    } elsif ($todo =~ s/^\(B\) *//)
     {
       $todo =~ s/^[0-9]{4}-[0-9]{2}-[0-9]{2} //;
       $todo =~ s/^ *//;
       push @todayRow, "$todoId $todo";
     } else 
     {
-      $todo =~ s/^\(.\) //;
+      $todo =~ s/^\(.\) *//;
       $todo =~ s/^[0-9]{4}-[0-9]{2}-[0-9]{2} //;
       $todo =~ s/^ *//;
+      #$todo=substr($todo, 0, 40);
       push @backlogRow, "$todoId $todo";
     }
   }
   foreach $todo (@{$dones}) {
     next if ($todo =~ /^#/); # Skip Commentlines 
-    if ($todo =~ s/^x $today//) {
+    if ($todo =~ s/^x $today *//) {
       $todo =~ s/^[0-9]{4}-[0-9]{2}-[0-9]{2} //;
       $todo =~ s/http:\/\/.*/<link>/;
       $todo =~ s/^ *//;
+      #/ $todo=substr($todo, 0, 50);
       push @doneRow, "x $todo";
     }
   }

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 # Author: MarkusWessjohann
 # Date: 01.11.2016
 # Desc: commits all files in TODO_DIR with an optinal commitmessage
