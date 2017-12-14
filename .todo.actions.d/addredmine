@@ -18,10 +18,7 @@ shift
 ID=$1
 [ "$ID" -eq "$ID" ] 2>/dev/null || die "usage: $TODO_SH $USAGE"
 
-redmineConfig=`cygpath -w "$HOME/.redmine.conf.gpg"`
-
-cd "/cygdrive/c/Program Files (x86)/GnuPG/bin/"
-user_pass=`command "gpg.exe" -vvvvv -d "$redmineConfig" | \
+user_pass=`gpg2.exe -d "$HOME/.redmine.conf.gpg" | \
   grep -v "Codepage" | \
   tr -d "$ ;"`
 user=` echo "$user_pass" | \
@@ -41,13 +38,13 @@ fi
 
 curl  -H "Content-Type: application/xml" -u "$user:$password" -X GET "http://redmine.ao-intranet/issues/${ID}.xml" > /tmp/$ID.xml
 
-thema=`xmllint.exe --xpath "string(//subject)" /tmp/$ID.xml`
-projekt=`xmllint.exe --xpath "string(//project/@name)" /tmp/$ID.xml | tr " " "_"`
-status=`xmllint.exe --xpath "string(//status/@name)" /tmp/$ID.xml`
-zugewiesen=`xmllint.exe --xpath "string(//assigned_tp/@name)" /tmp/$ID.xml`
+subject=`xmllint.exe --xpath "string(//subject)" /tmp/$ID.xml`
+project=`xmllint.exe --xpath "string(//project/@name)" /tmp/$ID.xml | tr " " "_"`
+state=`xmllint.exe --xpath "string(issue/status/@name)" /tmp/$ID.xml`
+assigned=`xmllint.exe --xpath "string(issue/assigned_to/@name)" /tmp/$ID.xml`
 prio="(A)"
 
-if [ "x$thema" == "x" ]
+if [ "x$subject" == "x" ]
 then
   echo "Redmine-issue not found: ${ID}";
   exit 1
@@ -55,13 +52,9 @@ fi
 $TODO_FULL_SH list | grep "#$ID" 2>&1 >/dev/null
 if [ "$?" -eq 0 ]
 then
-  echo "Redmine-issue already as Task (#$ID"
+  echo "Redmine-issue already as Task #$ID"
   exit 1
 fi
-todo="$prio #$ID - $thema +$projekt @Redmine"
+todo="$prio #$ID - $subject +$project @Redmine"
 $TODO_FULL_SH add "$todo"
-
-
-
-
 

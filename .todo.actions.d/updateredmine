@@ -1,0 +1,74 @@
+#!/bin/sh
+# Author: MarkusWessjohann
+# Date: 13.12.2017
+# Desc: update a task from a redmine issue
+
+USAGE="updateRedmine"
+
+if [ $1 = usage ]; then
+  cat <<EOF
+    $USAGE  - update task form the state of the redmine-issue.
+
+EOF
+exit
+fi
+
+[ $# -lt 0 ] && die "usage: $TODO_SH $USAGE"
+shift
+
+redmineConfig=`cygpath -w "$HOME/.redmine.conf.gpg"`
+
+user_pass=`gpg2 -d "$redmineConfig" | \
+  grep -v "Codepage" | \
+  tr -d "$ ;"`
+user=` echo "$user_pass" | \
+  grep user | \
+  cut -f2 -d"=" | \
+  tr -d '"'`
+password=` echo "$user_pass" | \
+  grep pass | \
+  cut -f2 -d"=" | \
+  tr -d '"'`
+
+if [ -z "$user_pass" ]
+then
+  echo "Couldn't decrypt File"
+  exit 1
+fi
+for todo in `$TODO_FULL_SH -p g "#[0-9]" | tr " " "_"`
+do
+  ID=`echo "$todo" | sed "s/.*_#\([0-9]*\)_-_.*/\1/"`
+  todoid=`echo "$todo" | sed "s/^\([0-9]*\)_.*/\1/"`
+  curl  -H "Content-Type: application/xml" -u "$user:$password" -X GET "http://redmine.ao-intranet/issues/${ID}.xml" > /tmp/$ID.xml 2>/dev/null
+
+  assigned=`xmllint.exe --xpath "string(issue/assigned_to/@name)" /tmp/$ID.xml`
+  firstName=`echo "$assigned" | sed "s/ .*//"`
+  status=`xmllint.exe --xpath "string(issue/status/@name)" /tmp/$ID.xml`
+  prio=""
+  if [ "x$status" != "x" ]
+  then
+    prio="B"
+    if [ "$status" == "Abgenommen" ]
+    then
+      prio="A"
+    fi
+  fi
+
+  if [ "x$firstName" != "x" ]
+  then
+    context="@WaitFor($firstName)"
+    if [ "$firstName" == "Markus" ]
+    then
+      context="@Redmine"
+      prio="A"
+    fi
+    $TODO_FULL_SH chcon "$todoid" "$context"
+  else
+    echo "Redmine-issue unknown state: ${ID}";
+    continue
+  fi
+  if [ ! -z "$prio" ]
+  then
+    $TODO_FULL_SH pri "$todoid" "$prio"
+  fi
+done
