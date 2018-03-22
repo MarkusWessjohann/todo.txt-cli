@@ -4,3 +4,6 @@ tests/trash\ directory.*
 done.txt
 report.txt
 todo.txt
+.access^
+.attribute^
+tags
